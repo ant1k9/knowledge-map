@@ -1,5 +1,3 @@
----
-
 [pq](https://github.com/iximiuz/pq)
 
 *Description*: Interactive query analytics

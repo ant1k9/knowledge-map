@@ -1,5 +1,3 @@
----
-
 [NvChad](https://github.com/siduck76/NvChad)
 
 *Description:* NVim configuration
