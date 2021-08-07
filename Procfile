@@ -1,1 +1,1 @@
-web: bin/app
+web: bin/knowledge-map
