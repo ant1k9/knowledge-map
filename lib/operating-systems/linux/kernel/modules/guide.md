@@ -1,5 +1,5 @@
 [The Linux Kernel Module Programming Guide](https://sysprog21.github.io/lkmpg/)
 
-*Description:* Guide
+*Description*: Guide
 
-*Labels:* #C #OS #Linux
+*Labels*: #C #OS #Linux

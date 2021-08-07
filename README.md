@@ -2,13 +2,13 @@ Saved links to resources and tools with predefined file structure.
 
 > [Link](href)
 >
-> *Description:* \<description>
+> *Description*: \<description>
 >
-> *Labels:* #Label
+> *Labels*: #Label
 >
-> *Docs:* \<docs>
+> *Docs*: \<docs>
 >
-> *Examples:*
+> *Example*:
 >
 > ```bash
 > $ ./run
