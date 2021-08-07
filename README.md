@@ -8,7 +8,7 @@ Saved links to resources and tools with predefined file structure.
 >
 > *Docs*: \<docs>
 >
-> *Example*:
+> *Examples*:
 >
 > ```bash
 > $ ./run

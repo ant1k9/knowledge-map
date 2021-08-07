@@ -16,17 +16,17 @@
 </div>
 {{ end }}
 
+{{ if .Examples }}
+<div><br/>
+  <em>Examples:</em>
+  <div>
+    <pre><code>{{ .Examples }}</code></pre>
+  </div>
+</div>
+{{ end }}
+
 <div>
 {{ range .Labels }}
   <a href="/search/{{ . }}">#{{ . }}</a>
 {{ end }}
 </div>
-
-{{ if .Example }}
-<div><br/>
-  <em>Example:</em>
-  <div>
-    <code>{{ .Example }}</code>
-  </div>
-</div>
-{{ end }}

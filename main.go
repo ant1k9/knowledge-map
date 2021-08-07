@@ -23,7 +23,7 @@ type (
 		Description string
 		Docs        string
 		Labels      []string
-		Example     string
+		Examples    string
 
 		Path string
 	}
@@ -42,8 +42,8 @@ var (
 	descriptionPattern = regexp.MustCompile(`\*Description\*: (.*)`)
 	docsPattern        = regexp.MustCompile(`\*Docs\*: (.*)`)
 	labelsPattern      = regexp.MustCompile(`\*Labels\*: (.*)`)
-	examplePattern     = regexp.MustCompile(
-		`(?m)\*Example\*:[\s\n]+` + "```" + `.*[\s\n]+` + "([^`]+" + `[\s\n]+)+`,
+	examplesPattern    = regexp.MustCompile(
+		`(?m)\*Examples\*:[\s\n]+` + "```" + `.*[\s\n]+` + "([^`]+" + `[\s\n]+)+`,
 	)
 )
 
@@ -113,8 +113,8 @@ func collect() ([]File, error) {
 				f.Labels[idx] = f.Labels[idx][1:]
 			}
 		}
-		if m := examplePattern.FindStringSubmatch(content); len(m) != 0 {
-			f.Example = m[1]
+		if m := examplesPattern.FindStringSubmatch(content); len(m) != 0 {
+			f.Examples = m[1]
 		}
 
 		files = append(files, f)
