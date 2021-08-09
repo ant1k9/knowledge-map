@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "embed"
-	"html/template"
 	"io/fs"
 	"io/ioutil"
 	"log"
@@ -13,6 +12,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -56,6 +56,9 @@ var (
 
 	//go:embed templates/tree.html.tpl
 	treeTpl string
+
+	//go:embed templates/base.html.tpl
+	baseTpl string
 )
 
 func main() {
@@ -130,6 +133,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch {
+	case strings.HasPrefix(path, "/assets"):
+		http.ServeFile(w, r, "."+path)
 	case strings.HasPrefix(path, "/lib"):
 		s.handleLib(w, r, path)
 	case strings.HasPrefix(path, "/search"):
@@ -148,6 +153,7 @@ func (s *Server) handleLib(w http.ResponseWriter, r *http.Request, path string) 
 		}
 
 		t, err := template.New("lib").Parse(libTpl)
+		t.New("header").Parse(baseTpl)
 		if err != nil {
 			log.Printf("error parsing lib template: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -191,6 +197,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request, path strin
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	t.New("header").Parse(baseTpl)
 
 	sort.Slice(responseFiles, func(i, j int) bool {
 		return strings.ToLower(responseFiles[i].Name) < strings.ToLower(responseFiles[j].Name)
@@ -235,6 +242,7 @@ func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	t.New("header").Parse(baseTpl)
 	t.Execute(w, responsePaths)
 }
 

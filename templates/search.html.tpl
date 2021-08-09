@@ -1,7 +1,4 @@
-<div>
-  <a href="/search/">Home</a><span> </span>
-  <a href="/tree/">Menu</a><span> </span>
-</div><br/>
+{{ template "header" }}
 
 <div>
   <form method="get">
