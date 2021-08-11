@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"html/template"
 	"io/fs"
 	"io/ioutil"
 	"log"
@@ -12,29 +13,11 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"text/template"
 	"time"
 )
 
-type (
-	File struct {
-		Name        string
-		Link        string
-		Description string
-		Docs        string
-		Labels      []string
-		Examples    string
-
-		Path string
-	}
-
-	Server struct {
-		files []File
-	}
-)
-
 const (
-	ResponseLimit = 20
+	ResponseLimit = 60
 )
 
 var (
@@ -43,7 +26,7 @@ var (
 	docsPattern        = regexp.MustCompile(`\*Docs\*: (.*)`)
 	labelsPattern      = regexp.MustCompile(`\*Labels\*: (.*)`)
 	examplesPattern    = regexp.MustCompile(
-		`(?m)\*Examples\*:[\s\n]+` + "```" + `.*[\s\n]+` + "([^`]+" + `[\s\n]+)+`,
+		`(?m)\*Examples\*:[\s\n]+` + "```" + `(.*)[\s\n]+` + "([^`]*" + `[\s\n]+)+`,
 	)
 )
 
@@ -59,6 +42,24 @@ var (
 
 	//go:embed templates/base.html.tpl
 	baseTpl string
+)
+
+type (
+	File struct {
+		Name             string
+		Link             string
+		Description      string
+		Docs             string
+		Labels           []string
+		Examples         string
+		ExamplesLanguage string
+
+		Path string
+	}
+
+	Server struct {
+		files []File
+	}
 )
 
 func main() {
@@ -117,7 +118,8 @@ func collect() ([]File, error) {
 			}
 		}
 		if m := examplesPattern.FindStringSubmatch(content); len(m) != 0 {
-			f.Examples = m[1]
+			f.ExamplesLanguage = m[1]
+			f.Examples = m[2]
 		}
 
 		files = append(files, f)
@@ -135,10 +137,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case strings.HasPrefix(path, "/assets"):
 		http.ServeFile(w, r, "."+path)
+	case strings.HasPrefix(path, "/search") || r.URL.Query().Get("q") != "":
+		s.handleSearch(w, r, path)
 	case strings.HasPrefix(path, "/lib"):
 		s.handleLib(w, r, path)
-	case strings.HasPrefix(path, "/search"):
-		s.handleSearch(w, r, path)
 	case strings.HasPrefix(path, "/tree"):
 		s.handleTree(w, r, path)
 	default:
@@ -152,15 +154,7 @@ func (s *Server) handleLib(w http.ResponseWriter, r *http.Request, path string) 
 			continue
 		}
 
-		t, err := template.New("lib").Parse(libTpl)
-		t.New("header").Parse(baseTpl)
-		if err != nil {
-			log.Printf("error parsing lib template: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		t.Execute(w, f)
+		renderTemplate(w, "lib", libTpl, f)
 		return
 	}
 
@@ -169,7 +163,7 @@ func (s *Server) handleLib(w http.ResponseWriter, r *http.Request, path string) 
 
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request, path string) {
 	var label string
-	if strings.Trim(path, "/") != "search" {
+	if strings.Trim(path, "/") != "search" && strings.HasPrefix(path, "/search") {
 		label = strings.ToLower(strings.Replace(path, "/search/", "", 1))
 	}
 
@@ -190,20 +184,11 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request, path strin
 		}
 		responseFiles = append(responseFiles, f)
 	}
-
-	t, err := template.New("serach").Parse(searchTpl)
-	if err != nil {
-		log.Printf("error parsing search template: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	t.New("header").Parse(baseTpl)
-
 	sort.Slice(responseFiles, func(i, j int) bool {
 		return strings.ToLower(responseFiles[i].Name) < strings.ToLower(responseFiles[j].Name)
 	})
 
-	t.Execute(w, responseFiles)
+	renderTemplate(w, "search", searchTpl, responseFiles)
 }
 
 func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string) {
@@ -212,7 +197,8 @@ func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string)
 		path = "/lib/"
 	}
 
-	responsePaths := make(map[string]File)
+	responsePaths := make([]File, 0, 16)
+	included := make(map[string]struct{})
 	for _, f := range s.files {
 		if !strings.Contains(f.Path, path) {
 			continue
@@ -222,28 +208,46 @@ func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string)
 		if idx := strings.Index(nodePath, "/"); idx > -1 {
 			nodePath = nodePath[:idx]
 		}
+
 		filePath := path + nodePath
+		if !strings.HasSuffix(filePath, ".md") {
+			filePath = "/tree" + filePath
+		}
+
+		if _, ok := included[filePath]; ok {
+			continue
+		}
+		included[filePath] = struct{}{}
 
 		if !strings.HasSuffix(filePath, ".md") {
-			responsePaths["/tree"+filePath] = File{
+			responsePaths = append(responsePaths, File{
 				Name: nodePath,
-				Link: "/tree" + filePath,
-			}
+				Path: filePath,
+			})
 			continue
 		}
 
 		f := f
-		responsePaths[filePath] = f
+		responsePaths = append(responsePaths, f)
 	}
 
-	t, err := template.New("tree").Parse(treeTpl)
+	renderTemplate(w, "tree", treeTpl, responsePaths)
+}
+
+func renderTemplate(w http.ResponseWriter, name, tpl string, values interface{}) {
+	fMap := template.FuncMap{
+		"mod": func(a, shift, mod int) bool { return (a+shift)%mod == 0 },
+	}
+
+	t, err := template.New(name).Funcs(fMap).Parse(tpl)
 	if err != nil {
-		log.Printf("error parsing tree template: %v", err)
+		log.Printf("error parsing %s template: %v", name, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	t.New("header").Parse(baseTpl)
-	t.Execute(w, responsePaths)
+	t.Execute(w, values)
 }
 
 func (f *File) hasLabel(label string) bool {
