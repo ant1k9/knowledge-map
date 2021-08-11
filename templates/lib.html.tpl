@@ -1,6 +1,6 @@
 {{ template "header" }}
 
-<div class="container">
+<div class="container text-center">
   <div class="card">
     <div class="card-body">
       <div class="card-title"><a href="{{ .Link }}">{{ .Name }}</a></div>
@@ -12,9 +12,9 @@
       <p class="card-text">{{ .Description }}</p>
       
       {{ if .Examples }}
-      <p class="card-text">
-        <pre><code class="language-{{ .ExamplesLanguage }} hljs">{{ .Examples }}</code></pre>
-      </p>
+      <pre class="card-text text-left">
+        <code class="language-{{ .ExamplesLanguage }} hljs">{{ .Examples }}</code>
+      </pre>
       {{ end }}
       
       <p class="card-footer">

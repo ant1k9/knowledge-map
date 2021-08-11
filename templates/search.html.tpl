@@ -1,6 +1,6 @@
 {{ template "header" }}
 
-<div class="container">
+<div class="container text-center">
   {{ range $index, $element := . }}
   {{ if mod $index 0 3 }}<div class="card-group">{{ end }}
   <div class="card">
