@@ -2,4 +2,4 @@
 
 *Description*: Explanation of postgres internal tables to find out information about database performance
 
-*Labels*: #Postgres #Performance #Database
+*Labels*: #PostgreSQL #Performance #Database
