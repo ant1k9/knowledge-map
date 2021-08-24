@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	ResponseLimit = 60
+	ResponseLimit = 45
 )
 
 var (
