@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	ResponseLimit = 45
+	ResponseLimit = 36
 )
 
 var (
@@ -63,6 +63,10 @@ type (
 )
 
 func main() {
+	Serve()
+}
+
+func Serve() {
 	files, err := collect()
 	if err != nil {
 		log.Fatal(err)
@@ -162,14 +166,18 @@ func (s *Server) handleLib(w http.ResponseWriter, r *http.Request, path string) 
 }
 
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request, path string) {
+	q := strings.ToLower(r.URL.Query().Get("q"))
+	if strings.HasPrefix(path, "/lib") {
+		http.Redirect(w, r, "/search/?q="+q, http.StatusFound)
+		return
+	}
+
 	var label string
-	if strings.Trim(path, "/") != "search" && strings.HasPrefix(path, "/search") {
+	if strings.HasPrefix(path, "/search") && strings.Trim(path, "/") != "search" {
 		label = strings.ToLower(strings.Replace(path, "/search/", "", 1))
 	}
 
-	q := strings.ToLower(r.URL.Query().Get("q"))
 	responseFiles := make([]File, 0, ResponseLimit)
-
 	for _, f := range s.files {
 		if len(responseFiles) == ResponseLimit {
 			break
