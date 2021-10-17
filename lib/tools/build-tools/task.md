@@ -9,7 +9,7 @@
 *Examples*:
 
 ```bash
-$ echo > Taskfile.yml << EOF
+$ cat > Taskfile.yml << EOF
 version: '3'
 
 tasks:
