@@ -23,3 +23,5 @@ Add some files to the lib folder with described format, then:
 ```bash
 $ go run main.go
 ```
+
+[Try on Heroku](my-knowledge-map.herokuapp.com)
