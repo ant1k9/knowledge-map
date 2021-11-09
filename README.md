@@ -24,4 +24,6 @@ Add some files to the lib folder with described format, then:
 $ go run main.go
 ```
 
-[Try on Heroku](my-knowledge-map.herokuapp.com)
+#### Current version
+
+[Try on Heroku](https://my-knowledge-map.herokuapp.com)

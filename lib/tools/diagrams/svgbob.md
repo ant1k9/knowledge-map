@@ -6,7 +6,9 @@
 
 *Docs*: https://ivanceras.github.io/content/Svgbob/Specification.html
 
-```Examples
+*Examples*:
+
+```bash
 $ cargo install svgbob_cli
 $ svgbob input.diagram > output.svg
 ```
