@@ -13,6 +13,7 @@ type (
 		Labels           []string
 		Examples         string
 		ExamplesLanguage string
+		ExtraLinks       []string
 
 		Path string
 	}

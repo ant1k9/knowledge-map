@@ -1,16 +1,23 @@
+![CI](https://github.com/ant1k9/knowledge-map/workflows/test/badge.svg)
+[![codecov](https://codecov.io/gh/ant1k9/knowledge-map/branch/main/graph/badge.svg)](https://codecov.io/gh/ant1k9/knowledge-map)
+
 ### Knowledge map
 
 🔗 Descriptions of resources and tools in Markdown format:
 
 > \[GitHub\]\(github.com\)
 >
-> \_Description\_: Hosting for your Git repo
+> \*Description\*: Hosting for your Git repo
 >
-> \_Labels\_: #Git #GitHub
+> \*Labels\*: #Git #GitHub
 >
-> \_Docs\_: https://docs.github.com/en
+> \*Docs\*: https://docs.github.com/en
 >
-> \_Examples\_:
+> \*Links\*:
+>  - https://docs.github.com/en
+>  - https://docs.github.com/en
+>
+> \*Examples\*:
 >
 > \```bash  
 > $ echo Hello, World!  

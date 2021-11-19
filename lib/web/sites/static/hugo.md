@@ -8,7 +8,7 @@
 
 *Examples*:
 
-```
+```bash
 $ hugo new site quickstart
 $ cd quickstart
 $ git init
