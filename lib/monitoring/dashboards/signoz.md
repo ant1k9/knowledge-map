@@ -5,3 +5,6 @@
 *Labels*: #Go #Monitoring #TypeScript
 
 *Docs*: https://signoz.io/docs/
+
+*Links*:
+  - https://signoz.io/blog/monitoring-your-go-application-with-signoz
