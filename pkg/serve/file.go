@@ -31,7 +31,8 @@ func (f *File) hasLabel(label string) bool {
 func (f *File) matchDescription(q string) bool {
 	for _, part := range strings.Split(q, " ") {
 		if !strings.Contains(strings.ToLower(f.Description), part) &&
-			!strings.Contains(strings.ToLower(f.Name), part) {
+			!strings.Contains(strings.ToLower(f.Name), part) &&
+			!f.hasLabel(q) {
 			return false
 		}
 	}
