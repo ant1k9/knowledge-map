@@ -2,4 +2,4 @@
 
 *Description*: For FS failures testing
 
-*Labels*: #C #Filesystem
+*Labels*: #C #FileSystem
