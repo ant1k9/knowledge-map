@@ -4,7 +4,7 @@
 
 *Labels*: #C #JSON
 
-*Docs*: https://stedolan.github.io/jq/
+*Docs*: https://stedolan.github.io/jq/manual/
 
 *Examples*:
 
