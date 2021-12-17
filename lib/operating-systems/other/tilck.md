@@ -1,4 +1,4 @@
-[tilck](https://github.com/vvaltchev/tilck#booting-tilck)
+[tilck](https://github.com/vvaltchev/tilck)
 
 *Description*: OS compatible with Linux
 
