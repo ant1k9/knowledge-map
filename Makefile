@@ -9,4 +9,6 @@ test:
 
 deploy:
 	@ssh ${MY_KNOWLEDGE_MAP_HOST} \
-		"cd ~/knowledge-map; git pull; sudo systemctl restart knowledge-map"
+		"cd ~/knowledge-map; \
+		 git pull; \
+		 echo ${MY_KNOWLEDGE_MAP_HOST_PASSWORD} | sudo -S systemctl restart knowledge-map"
