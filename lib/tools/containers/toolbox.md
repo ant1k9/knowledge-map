@@ -2,7 +2,7 @@
 
 *Description*: Tool for containerized command line environments on Linux
 
-*Labels*: #Container #Linux #Podman
+*Labels*: #Containers #Linux #Podman
 
 *Links*:
   - https://github.com/89luca89/simpler-toolbox
