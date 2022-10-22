@@ -2,7 +2,7 @@
 
 *Description*: KubeLinter is a static analysis tool that checks Kubernetes YAML files and Helm charts to ensure the applications represented in them adhere to best practices.
 
-*Labels*: #Go #Kubernetes #Linter
+*Labels*: #Go #Kubernetes #Linters
 
 *Examples*:
 

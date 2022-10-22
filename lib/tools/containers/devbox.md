@@ -6,6 +6,9 @@
 
 *Docs*: https://www.jetpack.io/devbox/
 
+*Links*:
+  - https://www.jetpack.io/blog/devbox-turn-a-1000-container-script-into-10-lines/
+
 *Examples*:
 
 ```bash
