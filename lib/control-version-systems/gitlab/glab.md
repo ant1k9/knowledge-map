@@ -1,4 +1,4 @@
-[glab](https://github.com/profclems/glab)
+[glab](https://gitlab.com/gitlab-org/cli)
 
 *Description*: An open-source GitLab command line tool bringing GitLab's cool features to your command line
 
