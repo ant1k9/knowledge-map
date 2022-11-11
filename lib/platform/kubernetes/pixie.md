@@ -1,7 +1,10 @@
 [pixie](https://github.com/pixie-io/pixie)
 
-*Description*: Instant Kubernetes-Native Application Observability
+*Description*: Instant open-source debugging for your applications on Kubernetes
 
 *Labels*: #C++ #Kubernetes
 
-*Docs*: https://px.dev
+*Docs*: https://docs.px.dev/
+
+*Links*:
+  - https://px.dev
