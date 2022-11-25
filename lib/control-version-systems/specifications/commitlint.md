@@ -9,5 +9,6 @@
 *Examples*:
 
 ```bash
+$ npm install -g @commitlint/{config-conventional,cli}
 $ commitlint --from HEAD~1
 ```
