@@ -30,7 +30,3 @@ Add some files to the lib folder with described format, then:
 ```bash
 $ go run main.go
 ```
-
-#### Current version
-
-[Try on Heroku](https://my-knowledge-map.herokuapp.com)
