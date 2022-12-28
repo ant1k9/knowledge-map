@@ -6,3 +6,4 @@
 
 *Links*:
   - https://vimtricks.com/p/vim-file-templates/
+  - https://vimtricks.com/p/vim-calculator/
