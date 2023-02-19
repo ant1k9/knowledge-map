@@ -23,20 +23,4 @@ In fact, this entire presentation is a markdown file.
 Create slides and present them without ever leaving your terminal.
 
 ---
-
-## Code execution
-\```go
-package main
-
-import "fmt"
-
-func main() {
-  fmt.Println("Execute code directly inside the slides")
-}
-\```
-
-You can execute code inside your slides by pressing `<C-e>`,
-the output of your command will be displayed at the end of the current slide.
-
---- 
 ```
