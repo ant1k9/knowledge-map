@@ -2,7 +2,7 @@
 
 *Description*: experimental linter/analyzer for Makefiles
 
-*Labels*: #Go #Makefile #Linter
+*Labels*: #Go #Makefile #Linters
 
 *Examples*:
 

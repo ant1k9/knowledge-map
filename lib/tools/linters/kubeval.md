@@ -2,7 +2,7 @@
 
 *Description*: Validate your Kubernetes configuration files, supports multiple Kubernetes versions
 
-*Labels*: #Go #Kubernetes #Linter
+*Labels*: #Go #Kubernetes #Linters
 
 *Docs*: https://kubeval.com
 

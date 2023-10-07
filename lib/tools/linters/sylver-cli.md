@@ -2,7 +2,7 @@
 
 *Description*: Language agnostic source code exploration and analysis.
 
-*Labels*: #Rust #Linter
+*Labels*: #Rust #Linters
 
 *Docs*: https://www.sylver.dev/docs/getting_started
 
