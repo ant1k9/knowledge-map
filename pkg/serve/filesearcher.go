@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+const (
+	DirectoryDescription = "/dir.md"
+)
+
 var (
 	libPattern         = regexp.MustCompile(`\[([^]]+)]\(([^)]+)\)`)
 	descriptionPattern = regexp.MustCompile(`\*Description\*: (.*)`)
@@ -28,7 +32,7 @@ type (
 		LinksPattern() *regexp.Regexp
 		ExamplesPattern() *regexp.Regexp
 		DescriptionPattern() *regexp.Regexp
-		Collect() ([]File, error)
+		Collect() ([]File, map[string]File, error)
 	}
 
 	fileSearcher struct {
@@ -59,20 +63,30 @@ func (s *fileSearcher) ExamplesPattern() *regexp.Regexp    { return s.examplesPa
 func (s *fileSearcher) LinksPattern() *regexp.Regexp       { return s.linksPattern }
 func (s *fileSearcher) DescriptionPattern() *regexp.Regexp { return s.descriptionPattern }
 
-func (s *fileSearcher) Collect() ([]File, error) {
+func (s *fileSearcher) Collect() ([]File, map[string]File, error) {
 	files := make([]File, 0, 1024)
-	return files, filepath.Walk("lib", func(path string, info fs.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
-		}
+	metadata := make(map[string]File, 1024)
+	return files, metadata, filepath.Walk("lib",
+		func(path string, info fs.FileInfo, err error) error {
+			if info.IsDir() {
+				return nil
+			}
 
-		raw, err := ioutil.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		files = append(files, s.parseFileInfo(string(raw), path))
-		return nil
-	})
+			raw, err := ioutil.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			if strings.HasSuffix(path, DirectoryDescription) {
+				file := s.parseFileInfo(string(raw), path)
+				metadata[file.Path] = s.parseFileInfo(string(raw), path)
+				return nil
+			}
+
+			files = append(files, s.parseFileInfo(string(raw), path))
+			return nil
+		},
+	)
 }
 
 func (s *fileSearcher) parseFileInfo(content, path string) File {

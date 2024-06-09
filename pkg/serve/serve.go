@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -31,15 +32,17 @@ var (
 
 type (
 	Server struct {
-		files []File
+		files    []File
+		metadata map[string]File
 	}
 )
 
 func Serve(fs FileSearcher) {
-	files, err := fs.Collect()
+	files, metadata, err := fs.Collect()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	log.Printf("collected %d files\n", len(files))
 
 	port := os.Getenv("PORT")
@@ -50,7 +53,8 @@ func Serve(fs FileSearcher) {
 	server := http.Server{
 		Addr: net.JoinHostPort("", port),
 		Handler: &Server{
-			files: files,
+			files:    files,
+			metadata: metadata,
 		},
 		ReadTimeout: 5 * time.Second,
 	}
@@ -87,7 +91,10 @@ func (s *Server) handleLib(w http.ResponseWriter, r *http.Request, path string) 
 			continue
 		}
 
-		renderTemplate(w, "lib", libTpl, f)
+		renderTemplate(w, "lib", libTpl, map[string]any{
+			"UpLink": filepath.Join("/tree", filepath.Dir(f.Path)),
+			"File":   f,
+		})
 		return
 	}
 
@@ -125,7 +132,10 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request, path strin
 		return strings.ToLower(responseFiles[i].Name) < strings.ToLower(responseFiles[j].Name)
 	})
 
-	renderTemplate(w, "search", searchTpl, responseFiles)
+	renderTemplate(w, "search", searchTpl, map[string]any{
+		"UpLink":        "/search",
+		"ResponseFiles": responseFiles,
+	})
 }
 
 func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string) {
@@ -147,9 +157,6 @@ func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string)
 		}
 
 		filePath := path + nodePath
-		if !strings.HasSuffix(filePath, ".md") {
-			filePath = "/tree" + filePath
-		}
 
 		if _, ok := included[filePath]; ok {
 			continue
@@ -158,8 +165,9 @@ func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string)
 
 		if !strings.HasSuffix(filePath, ".md") {
 			responsePaths = append(responsePaths, File{
-				Name: nodePath,
-				Path: filePath,
+				Name:        nodePath,
+				Description: s.metadata[filePath+DirectoryDescription].Description,
+				Path:        "/tree" + filePath,
 			})
 			continue
 		}
@@ -168,5 +176,8 @@ func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string)
 		responsePaths = append(responsePaths, f)
 	}
 
-	renderTemplate(w, "tree", treeTpl, responsePaths)
+	renderTemplate(w, "tree", treeTpl, map[string]any{
+		"UpLink":        "/tree" + filepath.Dir(strings.TrimSuffix(path, "/")),
+		"ResponseFiles": responsePaths,
+	})
 }

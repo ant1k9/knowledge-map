@@ -1,5 +1,6 @@
-{{ template "header" }}
+{{ template "header" . }}
 
+{{ with .ResponseFiles }}
 <div class="container text-center">
   {{ range $index, $element := . }}
   {{ if mod $index 0 3 }}<div class="card-group">{{ end }}
@@ -14,3 +15,4 @@
   {{ if mod $index 1 3 }}</div>{{ end }}
   {{ end }}
 </div>
+{{ end }}

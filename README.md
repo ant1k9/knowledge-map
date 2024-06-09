@@ -23,6 +23,13 @@
 > $ echo Hello, World!  
 > \```  
 
+
+### Directory subscription
+
+To add directory subscription add a file `dir.md` to any directory in your library:
+
+> \*Description\*: Database tools for PostgreSQL and MySQL
+
 #### Usage
 
 Add some files to the lib folder with described format, then:

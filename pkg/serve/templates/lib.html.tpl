@@ -1,5 +1,6 @@
-{{ template "header" }}
+{{ template "header" . }}
 
+{{ with .File }}
 <div class="container text-center">
   <div class="card">
     <div class="card-body">
@@ -34,3 +35,4 @@
     </div>
   </div>
 </div>
+{{ end }}
