@@ -1,4 +1,4 @@
-package serve
+package filesearcher
 
 import (
 	"io/fs"
@@ -25,16 +25,6 @@ var (
 )
 
 type (
-	FileSearcher interface {
-		LibPattern() *regexp.Regexp
-		DocsPattern() *regexp.Regexp
-		LabelsPattern() *regexp.Regexp
-		LinksPattern() *regexp.Regexp
-		ExamplesPattern() *regexp.Regexp
-		DescriptionPattern() *regexp.Regexp
-		Collect() ([]File, map[string]File, error)
-	}
-
 	fileSearcher struct {
 		libPattern         *regexp.Regexp
 		docsPattern        *regexp.Regexp
@@ -84,6 +74,28 @@ func (s *fileSearcher) Collect() ([]File, map[string]File, error) {
 			}
 
 			files = append(files, s.parseFileInfo(string(raw), path))
+			return nil
+		},
+	)
+}
+
+func (s *fileSearcher) CollectLinks() ([]File, error) {
+	files := make([]File, 0, 1024)
+	return files, filepath.Walk("assets/links",
+		func(path string, info fs.FileInfo, err error) error {
+			if info.IsDir() {
+				return nil
+			}
+
+			raw, err := ioutil.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			fileInfo := s.parseFileInfo(string(raw), path)
+			fileInfo.Name = strings.TrimSuffix(filepath.Base(path), ".md")
+			fileInfo.Description = string(raw)
+			files = append(files, fileInfo)
 			return nil
 		},
 	)

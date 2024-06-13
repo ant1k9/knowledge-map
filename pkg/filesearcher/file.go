@@ -1,4 +1,4 @@
-package serve
+package filesearcher
 
 import (
 	"strings"
@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func (f *File) hasLabel(label string) bool {
+func (f *File) HasLabel(label string) bool {
 	for _, l := range f.Labels {
 		if strings.ToLower(l) == label {
 			return true
@@ -28,11 +28,11 @@ func (f *File) hasLabel(label string) bool {
 	return false
 }
 
-func (f *File) matchDescription(q string) bool {
+func (f *File) MatchDescription(q string) bool {
 	for _, part := range strings.Split(q, " ") {
 		if !strings.Contains(strings.ToLower(f.Description), part) &&
 			!strings.Contains(strings.ToLower(f.Name), part) &&
-			!f.hasLabel(q) {
+			!f.HasLabel(q) {
 			return false
 		}
 	}

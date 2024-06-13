@@ -1,4 +1,4 @@
-package serve
+package filesearcher
 
 import (
 	"testing"

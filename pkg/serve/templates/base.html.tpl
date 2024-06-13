@@ -19,6 +19,9 @@
       <a class="nav-link" href="/tree/">Menu</a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="/links/">Links</a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{{ .UpLink }}">Up</a>
     </li>
   </ul>

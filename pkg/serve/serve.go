@@ -7,9 +7,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/ant1k9/knowledge-map/pkg/filesearcher"
 )
 
 const (
@@ -32,13 +35,30 @@ var (
 
 type (
 	Server struct {
-		files    []File
-		metadata map[string]File
+		files    []filesearcher.File
+		links    []filesearcher.File
+		metadata map[string]filesearcher.File
+	}
+
+	FileSearcher interface {
+		LibPattern() *regexp.Regexp
+		DocsPattern() *regexp.Regexp
+		LabelsPattern() *regexp.Regexp
+		LinksPattern() *regexp.Regexp
+		ExamplesPattern() *regexp.Regexp
+		DescriptionPattern() *regexp.Regexp
+		Collect() ([]filesearcher.File, map[string]filesearcher.File, error)
+		CollectLinks() ([]filesearcher.File, error)
 	}
 )
 
 func Serve(fs FileSearcher) {
 	files, metadata, err := fs.Collect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	links, err := fs.CollectLinks()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,6 +74,7 @@ func Serve(fs FileSearcher) {
 		Addr: net.JoinHostPort("", port),
 		Handler: &Server{
 			files:    files,
+			links:    links,
 			metadata: metadata,
 		},
 		ReadTimeout: 5 * time.Second,
@@ -74,6 +95,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case strings.HasPrefix(path, "/assets"):
 		http.ServeFile(w, r, "."+path)
+	case strings.HasPrefix(path, "/links"):
+		s.handleLinks(w, r, path)
 	case strings.HasPrefix(path, "/search") || r.URL.Query().Get("q") != "":
 		s.handleSearch(w, r, path)
 	case strings.HasPrefix(path, "/lib"):
@@ -113,17 +136,17 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request, path strin
 		label = strings.ToLower(strings.Replace(path, "/search/", "", 1))
 	}
 
-	responseFiles := make([]File, 0, ResponseLimit)
+	responseFiles := make([]filesearcher.File, 0, ResponseLimit)
 	for _, f := range s.files {
 		if len(responseFiles) == ResponseLimit {
 			break
 		}
 
 		f := f
-		if label != "" && !f.hasLabel(label) {
+		if label != "" && !f.HasLabel(label) {
 			continue
 		}
-		if q != "" && !f.matchDescription(q) {
+		if q != "" && !f.MatchDescription(q) {
 			continue
 		}
 		responseFiles = append(responseFiles, f)
@@ -138,13 +161,50 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request, path strin
 	})
 }
 
+func (s *Server) handleLinks(w http.ResponseWriter, r *http.Request, path string) {
+	q := strings.ToLower(r.URL.Query().Get("q"))
+
+	var label string
+	if strings.Trim(path, "/") != "links" {
+		label = strings.ToLower(strings.Replace(path, "/links/", "", 1))
+	}
+
+	responseFiles := make([]filesearcher.File, 0, ResponseLimit)
+	for _, f := range s.links {
+		if len(responseFiles) == ResponseLimit {
+			break
+		}
+
+		f := f
+		if label != "" && !f.HasLabel(label) {
+			continue
+		}
+		if q != "" && !f.MatchDescription(q) {
+			continue
+		}
+
+		if len(f.Description) > 300 {
+			f.Description = f.Description[:300] + "..."
+		}
+
+		responseFiles = append(responseFiles, f)
+	}
+	sort.Slice(responseFiles, func(i, j int) bool {
+		return strings.ToLower(responseFiles[i].Name) < strings.ToLower(responseFiles[j].Name)
+	})
+
+	renderTemplate(w, "search", searchTpl, map[string]any{
+		"UpLink":        "/links",
+		"ResponseFiles": responseFiles,
+	})
+}
 func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string) {
 	path = strings.TrimRight(strings.Replace(path, "/tree", "", 1), "/") + "/"
 	if path == "/" {
 		path = "/lib/"
 	}
 
-	responsePaths := make([]File, 0, 16)
+	responsePaths := make([]filesearcher.File, 0, 16)
 	included := make(map[string]struct{})
 	for _, f := range s.files {
 		if !strings.Contains(f.Path, path) {
@@ -164,9 +224,9 @@ func (s *Server) handleTree(w http.ResponseWriter, r *http.Request, path string)
 		included[filePath] = struct{}{}
 
 		if !strings.HasSuffix(filePath, ".md") {
-			responsePaths = append(responsePaths, File{
+			responsePaths = append(responsePaths, filesearcher.File{
 				Name:        nodePath,
-				Description: s.metadata[filePath+DirectoryDescription].Description,
+				Description: s.metadata[filePath+filesearcher.DirectoryDescription].Description,
 				Path:        "/tree" + filePath,
 			})
 			continue
