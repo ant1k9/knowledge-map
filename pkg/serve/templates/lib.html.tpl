@@ -22,7 +22,7 @@
       <p class="text-left font-weight-bold">Extra links:</p>
       <ul>
         {{ range .ExtraLinks }}
-        <li class="card-text text-left"><a href="{{ . }}">{{ . }}</a></li>
+        <li class="card-text text-left"><a href="{{ .URL }}">{{ .Title }}</a></li>
         {{ end }}
       </ul>
       {{ end }}

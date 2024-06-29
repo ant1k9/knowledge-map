@@ -15,7 +15,7 @@
 >
 > \*Links\*:
 >  - https://docs.github.com/en
->  - https://docs.github.com/en
+>  - \[Docs\]\(https://docs.github.com/en)
 >
 > \*Examples\*:
 >

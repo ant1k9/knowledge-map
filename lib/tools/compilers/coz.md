@@ -5,4 +5,4 @@
 *Labels*: #C #Compiler #Optimization
 
 *Links*:
-  - https://github.com/urjitbhatia/cozgo
+  - [Coz profiler Golang wrapper](https://github.com/urjitbhatia/cozgo)

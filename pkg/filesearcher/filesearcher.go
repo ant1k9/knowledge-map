@@ -3,6 +3,7 @@ package filesearcher
 import (
 	"io/fs"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -19,6 +20,7 @@ var (
 	labelsPattern      = regexp.MustCompile(`\*Labels\*: (.*)`)
 	linksPattern       = regexp.MustCompile(`(?m)\*Links\*: *\n( *-.*\n)+`)
 	linkPattern        = regexp.MustCompile(`(?m)\s*-\s*(.*)\s*`)
+	namedLinkPattern   = regexp.MustCompile(`(?m)\s*-\s*\[(.*)\]\((.*)\)\s*`)
 	examplesPattern    = regexp.MustCompile(
 		`(?m)\*Examples\*:[\s\n]+` + "```" + `(.*)[\s\n]+` + "([^`]*" + `[\s\n]+)+`,
 	)
@@ -81,6 +83,10 @@ func (s *fileSearcher) Collect() ([]File, map[string]File, error) {
 
 func (s *fileSearcher) CollectLinks() ([]File, error) {
 	files := make([]File, 0, 1024)
+	if _, err := os.Stat("assets/links"); err != nil {
+		return files, nil
+	}
+
 	return files, filepath.Walk("assets/links",
 		func(path string, info fs.FileInfo, err error) error {
 			if info.IsDir() {
@@ -107,25 +113,43 @@ func (s *fileSearcher) parseFileInfo(content, path string) File {
 		f.Name = m[1]
 		f.Link = m[2]
 	}
+
 	if m := s.DescriptionPattern().FindStringSubmatch(content); len(m) != 0 {
 		f.Description = m[1]
 	}
+
 	if m := s.DocsPattern().FindStringSubmatch(content); len(m) != 0 {
 		f.Docs = m[1]
 	}
+
 	if m := s.LabelsPattern().FindStringSubmatch(content); len(m) != 0 {
 		f.Labels = strings.Split(m[1], " ")
 		for idx := range f.Labels {
 			f.Labels[idx] = f.Labels[idx][1:]
 		}
 	}
+
 	if m := s.ExamplesPattern().FindStringSubmatch(content); len(m) != 0 {
 		f.ExamplesLanguage = m[1]
 		f.Examples = m[2]
 	}
+
 	if m := s.LinksPattern().FindStringSubmatch(content); len(m) != 0 {
-		for _, link := range linkPattern.FindAllStringSubmatch(m[0], -1) {
-			f.ExtraLinks = append(f.ExtraLinks, link[1])
+		for _, link := range strings.Split(m[0], "\n") {
+			if named := namedLinkPattern.FindStringSubmatch(link); len(named) != 0 {
+				f.ExtraLinks = append(f.ExtraLinks, Link{
+					Title: named[1],
+					URL:   named[2],
+				})
+				continue
+			}
+
+			if raw := linkPattern.FindStringSubmatch(link); len(raw) != 0 {
+				f.ExtraLinks = append(f.ExtraLinks, Link{
+					Title: raw[1],
+					URL:   raw[1],
+				})
+			}
 		}
 	}
 	return f

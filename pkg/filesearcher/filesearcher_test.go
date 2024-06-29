@@ -31,7 +31,7 @@ func Test_fileSearcher_parseFileInfo(t *testing.T) {
 
 *Links*:
   - https://gohugo.io/content-management/
-  - https://gohugo.io/getting-started/
+  - [Getting started](https://gohugo.io/getting-started/)
 
 *Examples*:
 
@@ -61,9 +61,15 @@ $ hugo new posts/my-first-post.md
 $ hugo server -D
 `,
 				ExamplesLanguage: "bash",
-				ExtraLinks: []string{
-					"https://gohugo.io/content-management/",
-					"https://gohugo.io/getting-started/",
+				ExtraLinks: []Link{
+					{
+						Title: "https://gohugo.io/content-management/",
+						URL:   "https://gohugo.io/content-management/",
+					},
+					{
+						Title: "Getting started",
+						URL:   "https://gohugo.io/getting-started/",
+					},
 				},
 				Path: "/analytics/web/countly-server.md",
 			},

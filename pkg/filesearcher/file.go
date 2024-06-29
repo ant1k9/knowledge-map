@@ -5,6 +5,11 @@ import (
 )
 
 type (
+	Link struct {
+		Title string
+		URL   string
+	}
+
 	File struct {
 		Name             string
 		Link             string
@@ -13,7 +18,7 @@ type (
 		Labels           []string
 		Examples         string
 		ExamplesLanguage string
-		ExtraLinks       []string
+		ExtraLinks       []Link
 
 		Path string
 	}
